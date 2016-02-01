@@ -62,5 +62,5 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
     conf_file = "tests/data/janitoo_thermal.conf"
 
     def test_101_thread_start_wait_long_stop(self):
-        self.skipTest("Fail on docker")
+        self.thread.start()
         time.sleep(60)

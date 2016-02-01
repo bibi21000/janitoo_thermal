@@ -2,6 +2,10 @@
     :target: https://travis-ci.org/bibi21000/janitoo_thermal
     :alt: Travis status
 
+.. image:: https://circleci.com/gh/bibi21000/janitoo_thermal.png?style=shield
+    :target: https://circleci.com/gh/bibi21000/janitoo_thermal
+    :alt: Circle status
+
 .. image:: https://coveralls.io/repos/bibi21000/janitoo_thermal/badge.svg?branch=master&service=github
     :target: https://coveralls.io/github/bibi21000/janitoo_thermal?branch=master
     :alt: Coveralls results

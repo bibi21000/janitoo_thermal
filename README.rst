@@ -1,13 +1,13 @@
-.. image:: https://travis-ci.org/bibi21000/janitoo_raspberry_fishtank.svg?branch=master
-    :target: https://travis-ci.org/bibi21000/janitoo_raspberry_fishtank
+.. image:: https://travis-ci.org/bibi21000/janitoo_thermal.svg?branch=master
+    :target: https://travis-ci.org/bibi21000/janitoo_thermal
     :alt: Travis status
 
-.. image:: https://circleci.com/gh/bibi21000/janitoo_raspberry_fishtank.png?style=shield&circle-token=ef1e8a7c0d3b90e9873bf5189f0d2eaafca6ff8b
-    :target: https://circleci.com/gh/bibi21000/janitoo_raspberry_fishtank
+.. image:: https://circleci.com/gh/bibi21000/janitoo_thermal.png?style=shield
+    :target: https://circleci.com/gh/bibi21000/janitoo_thermal
     :alt: Circle status
 
-.. image:: https://coveralls.io/repos/bibi21000/janitoo_raspberry_fishtank/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/bibi21000/janitoo_raspberry_fishtank?branch=master
+.. image:: https://coveralls.io/repos/bibi21000/janitoo_thermal/badge.svg?branch=master&service=github
+    :target: https://coveralls.io/github/bibi21000/janitoo_thermal?branch=master
     :alt: Coveralls results
 
 ===============
