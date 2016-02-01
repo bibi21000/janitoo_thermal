@@ -42,8 +42,7 @@ from janitoo.utils import TOPIC_NODES, TOPIC_NODES_REPLY, TOPIC_NODES_REQUEST
 from janitoo.utils import TOPIC_BROADCAST_REPLY, TOPIC_BROADCAST_REQUEST
 from janitoo.utils import TOPIC_VALUES_USER, TOPIC_VALUES_CONFIG, TOPIC_VALUES_SYSTEM, TOPIC_VALUES_BASIC
 
-import janitoo_thermal.thermal
-import janitoo_thermal.thread_thermal
+from janitoo.threads.remote import RemoteBus
 
 ##############################################################
 #Check that we are in sync with the official command classes
@@ -55,12 +54,41 @@ COMMAND_DISCOVERY = 0x5000
 assert(COMMAND_DESC[COMMAND_DISCOVERY] == 'COMMAND_DISCOVERY')
 ##############################################################
 
+JNTTThreadRun.skipDockerTest()
+
 class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
     """Test the thread
     """
     thread_name = "thermal"
-    conf_file = "tests/data/janitoo_thermal.conf"
+    conf_file = "tests/data/test_thermal.conf"
 
-    def test_101_thread_start_wait_long_stop(self):
-        self.thread.start()
-        time.sleep(60)
+    #~ def test_051_nodeman_started(self):
+        #~ timeout = 90
+        #~ i = 0
+        #~ while i< timeout*10000 and not self.thread.nodeman.is_started:
+            #~ time.sleep(0.0001)
+            #~ i += 1
+        #~ self.assertTrue(self.thread.nodeman.is_started)
+        
+
+    #~ def test_101_values_config(self):
+        #~ self.thread.start()
+        #~ timeout = 45
+        #~ i = 0
+        #~ while i< timeout*10000 and not self.thread.nodeman.is_started:
+            #~ time.sleep(0.0001)
+            #~ i += 1
+        #~ print self.thread.bus.nodeman.nodes
+        #~ print self.thread.bus.nodeman.find_node('node0')
+        #~ print self.thread.bus.nodeman.find_node('node1')
+        #~ print self.thread.bus.nodeman.find_node('node3')
+        #~ print self.thread.bus.nodeman.find_value('node0','users_read').instances
+        #~ print self.thread.bus.nodeman.find_value('node1','users_read').instances
+        #~ self.assertNotEqual(None, self.thread.bus.nodeman.find_node('node1'))
+        #~ self.assertNotEqual(None, self.thread.bus.nodeman.find_node('node0'))
+        #~ self.assertNotEqual(None, self.thread.bus.nodeman.find_node('node3'))
+        #~ self.assertEqual(2, self.thread.bus.nodeman.find_value('node1','users_read').get_length())
+        #~ self.assertEqual(1, self.thread.bus.nodeman.find_value('node0','users_read').get_length())
+        #~ self.assertEqual(0, self.thread.bus.nodeman.find_value('node3','users_read').get_length())
+        #~ self.assertEqual(4, len(self.thread.bus.find_components('remote.node')))
+        #~ self.assertEqual(4, len(self.thread.bus.find_values('remote.node','users_read')))

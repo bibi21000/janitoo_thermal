@@ -39,6 +39,7 @@ from janitoo.node import JNTNode
 from janitoo.value import JNTValue
 from janitoo.component import JNTComponent
 from janitoo.bus import JNTBus
+from janitoo.threads.remote import RemoteNodeComponent
 
 
 ##############################################################
@@ -79,8 +80,13 @@ class ThermalBus(JNTBus):
         """
         JNTBus.stop(self)
 
+    def loop(self, stopevent):
+        """Loop in the bus"""
+        for compo in self.components.keys():
+            self.components[compo].loop(stopevent)
+
 class SimpleThermostatComponent(JNTComponent):
-    """ A generic component """
+    """ A somple thermostat component """
 
     def __init__(self, bus=None, addr=None, **kwargs):
         """
@@ -88,6 +94,61 @@ class SimpleThermostatComponent(JNTComponent):
         oid = kwargs.pop('oid', 'thermal.simple_thermostat')
         name = kwargs.pop('name', "Simple thermostat")
         JNTComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
+                **kwargs)
+        logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
+        uuid="hysteresis"
+        self.values[uuid] = self.value_factory['config_float'](options=self.options, uuid=uuid,
+            node_uuid=self.uuid,
+            help='The hysteresis of the thermostat',
+            label='Hist.',
+            default=kwargs.pop('hysteresis', 0.2),
+        )
+        uuid="setpoint"
+        self.values[uuid] = self.value_factory['config_float'](options=self.options, uuid=uuid,
+            node_uuid=self.uuid,
+            help='The setpoint temperature of the thermostat',
+            label='SetPoint.',
+            default=kwargs.pop('setpoint', 20.2),
+        )
+        uuid="delay"
+        self.values[uuid] = self.value_factory['config_float'](options=self.options, uuid=uuid,
+            node_uuid=self.uuid,
+            help='The delay between 2 checks',
+            label='Delay',
+            default=kwargs.pop('delay', 15.0),
+        )
+        self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
+
+    def loop(self, stopevent):
+        """Loop in the components"""
+        if self.last_run is None or self.last_run < datetime.datetime.now():
+            sensors = self.thread.bus.find_values('remote.external_sensor', 'users_read')
+            logger.debug("[%s] - Found %s external sensors", self.__class__.__name__, self.uuid, len(sensors))
+            relays = self.thread.bus.find_values('remote.external_relay', 'users_write')
+            logger.debug("[%s] - Found %s external relays", self.__class__.__name__, self.uuid, len(relays))
+            self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
+
+class ExternalSensorComponent(RemoteNodeComponent):
+    """ An external sensorcomponent """
+
+    def __init__(self, bus=None, addr=None, **kwargs):
+        """
+        """
+        oid = kwargs.pop('oid', 'thermal.external_sensor')
+        name = kwargs.pop('name', "External sensor")
+        RemoteNodeComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
+                **kwargs)
+        logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
+
+class ExternalRelayComponent(RemoteNodeComponent):
+    """ An external relay component """
+
+    def __init__(self, bus=None, addr=None, **kwargs):
+        """
+        """
+        oid = kwargs.pop('oid', 'thermal.external_relay')
+        name = kwargs.pop('name', "External relay")
+        RemoteNodeComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
                 **kwargs)
         logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
 
