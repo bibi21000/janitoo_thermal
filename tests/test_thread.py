@@ -69,7 +69,7 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
             #~ time.sleep(0.0001)
             #~ i += 1
         #~ self.assertTrue(self.thread.nodeman.is_started)
-        
+
 
     def test_101_values_config(self):
         self.thread.start()
