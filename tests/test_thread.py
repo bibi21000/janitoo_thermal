@@ -73,7 +73,7 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
 
     def test_101_values_config(self):
         self.thread.start()
-        timeout = 45
+        timeout = 60
         i = 0
         while i< timeout*10000 and not self.thread.nodeman.is_started:
             time.sleep(0.0001)
