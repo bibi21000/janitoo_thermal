@@ -73,19 +73,28 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
 
     def test_101_values_config(self):
         self.thread.start()
-        timeout = 60
+        timeout = 120
         i = 0
-        while i< timeout*10000 and not self.thread.nodeman.is_started:
-            time.sleep(0.0001)
+        while i< timeout and not self.thread.nodeman.is_started:
+            time.sleep(1)
             i += 1
+            #~ print self.thread.nodeman.state
         print self.thread.bus.nodeman.nodes
         self.assertNotEqual(None, self.thread.bus.nodeman.find_node('sensor0'))
         self.assertNotEqual(None, self.thread.bus.nodeman.find_node('relay0'))
         self.assertNotEqual(None, self.thread.bus.nodeman.find_node('simple0'))
-        self.assertEqual(1, self.thread.bus.nodeman.find_value('sensor0','users_read').get_length())
-        self.assertEqual(1, self.thread.bus.nodeman.find_value('relay0','users_write').get_length())
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.external_sensor')))
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.external_relay')))
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.simple_thermostat')))
         self.assertEqual(1, len(self.thread.bus.find_values('thermal.external_sensor','users_read')))
         self.assertEqual(1, len(self.thread.bus.find_values('thermal.external_sensor','users_write')))
+        self.assertEqual(1, self.thread.bus.nodeman.find_value('sensor0','users_read').get_length())
+        value = self.thread.bus.nodeman.find_value('sensor0','users_read')
+        print value.get_value_config()
+        self.assertEqual(['dht_in_temp','0'], value.get_value_config())
+        self.assertEqual(None, value.get_value_config(index=99))
+        self.assertEqual(1, self.thread.bus.nodeman.find_value('relay0','users_write').get_length())
+        value = self.thread.bus.nodeman.find_value('relay0','users_write')
+        print value.get_value_config()
+        self.assertEqual(['switch','0','0x0025','1','0'], value.get_value_config())
+        self.assertEqual(None, value.get_value_config(index=99))
