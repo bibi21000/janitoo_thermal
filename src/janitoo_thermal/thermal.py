@@ -59,6 +59,12 @@ assert(COMMAND_DESC[COMMAND_DOC_RESOURCE] == 'COMMAND_DOC_RESOURCE')
 def make_simple_thermostat(**kwargs):
     return SimpleThermostatComponent(**kwargs)
 
+def make_external_sensor(**kwargs):
+    return ExternalSensorComponent(**kwargs)
+
+def make_external_relay(**kwargs):
+    return ExternalRelayComponent(**kwargs)
+
 class ThermalBus(JNTBus):
     """A minimal thermal bus
     """
@@ -101,7 +107,7 @@ class SimpleThermostatComponent(JNTComponent):
             node_uuid=self.uuid,
             help='The hysteresis of the thermostat',
             label='Hist.',
-            default=kwargs.pop('hysteresis', 0.2),
+            default=kwargs.pop('hysteresis', 0.5),
         )
         uuid="setpoint"
         self.values[uuid] = self.value_factory['config_float'](options=self.options, uuid=uuid,
@@ -117,19 +123,19 @@ class SimpleThermostatComponent(JNTComponent):
             label='Delay',
             default=kwargs.pop('delay', 15.0),
         )
-        self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
+        self.last_run = datetime.datetime.now()
 
     def loop(self, stopevent):
         """Loop in the components"""
-        if self.last_run is None or self.last_run < datetime.datetime.now():
-            sensors = self.thread.bus.find_values('remote.external_sensor', 'users_read')
-            logger.debug("[%s] - Found %s external sensors", self.__class__.__name__, self.uuid, len(sensors))
-            relays = self.thread.bus.find_values('remote.external_relay', 'users_write')
-            logger.debug("[%s] - Found %s external relays", self.__class__.__name__, self.uuid, len(relays))
+        if self.last_run < datetime.datetime.now():
+            sensors = self._bus.find_values('remote.external_sensor', 'users_read')
+            logger.debug("[%s] - [%s] - Found %s external sensors", self.__class__.__name__, self.uuid, len(sensors))
+            relays = self._bus.find_values('remote.external_relay', 'users_write')
+            logger.debug("[%s] - [%s] - Found %s external relays", self.__class__.__name__, self.uuid, len(relays))
             self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
 
 class ExternalSensorComponent(RemoteNodeComponent):
-    """ An external sensorcomponent """
+    """ An external sensor component """
 
     def __init__(self, bus=None, addr=None, **kwargs):
         """
@@ -151,4 +157,3 @@ class ExternalRelayComponent(RemoteNodeComponent):
         RemoteNodeComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
                 **kwargs)
         logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
-

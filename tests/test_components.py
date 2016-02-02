@@ -57,3 +57,13 @@ class TestSimpleThermostatComponent(JNTTComponent, JNTTComponentCommon):
     """
     component_name = "thermal.simple_thermostat"
 
+class TestExternalSensorComponent(JNTTComponent, JNTTComponentCommon):
+    """Test the component
+    """
+    component_name = "thermal.external_sensor"
+
+class TestExternalRelayComponent(JNTTComponent, JNTTComponentCommon):
+    """Test the component
+    """
+    component_name = "thermal.external_relay"
+
