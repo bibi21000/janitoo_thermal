@@ -116,7 +116,7 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
         self.thread.bus.find_values('thermal.simple_thermostat','setpoint')[0].set_data_index(index=0,data=20)
         self.thread.bus.find_values('thermal.simple_thermostat','hysteresis')[0].set_data_index(index=0,data=0.5)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=15)
-        time.sleep(6.0)
+        time.sleep(10.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.5)
         time.sleep(3.0)

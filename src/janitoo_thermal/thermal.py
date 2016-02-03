@@ -137,7 +137,7 @@ class SimpleThermostatComponent(JNTComponent):
         poll_value = self.values[uuid].create_poll_value(default=300)
         self.values[poll_value.uuid] = poll_value
         uuid="status"
-        self.values[uuid] = self.value_factory['list_string'](options=self.options, uuid=uuid,
+        self.values[uuid] = self.value_factory['sensor_list'](options=self.options, uuid=uuid,
             node_uuid=self.uuid,
             help='The current status of the thermostat',
             label='Status',
@@ -153,15 +153,6 @@ class SimpleThermostatComponent(JNTComponent):
             ret = self.get_sensors_temperature(sensors)
         except ValueError:
             logger.exception('Exception when retrieving temperature')
-            ret = None
-        return ret
-
-    def status(self, node_uuid, index):
-        sensors = self.get_sensors()
-        try:
-            ret = self.get_thermostat_status()
-        except ValueError:
-            logger.exception('Exception when retrieving status')
             ret = None
         return ret
 
@@ -202,13 +193,17 @@ class SimpleThermostatComponent(JNTComponent):
         """Loop in the components"""
         if self.last_run < datetime.datetime.now():
             sensors = self.get_sensors()
+            logger.debug("[%s] - [%s] - Found %s sensors", self.__class__.__name__, self.uuid, len(sensors))
+            if len(sensors) == 0:
+                logger.warning("[%s] - [%s] - Can't find sensors", self.__class__.__name__, self.uuid)
             heaters = self.get_heaters()
-            logger.debug("[%s] - [%s] - Found %s external sensors", self.__class__.__name__, self.uuid, len(sensors))
-            logger.debug("[%s] - [%s] - Found %s external heaters", self.__class__.__name__, self.uuid, len(heaters))
+            logger.debug("[%s] - [%s] - Found %s heaters", self.__class__.__name__, self.uuid, len(heaters))
+            if len(heaters) == 0:
+                logger.warning("[%s] - [%s] - Can't find heaters", self.__class__.__name__, self.uuid)
             try:
                 if len(sensors)>0 and len(heaters)>0:
                     try:
-                        temp = self.get_temperature(sensors)
+                        temp = self.get_sensors_temperature(sensors)
                         if temp > self.values['setpoint'].get_data_index(index=0) :
                             self.values['status'].set_data_index(index=0, data="Sleep")
                             self.deactivate_heaters(heaters)
@@ -216,9 +211,9 @@ class SimpleThermostatComponent(JNTComponent):
                             self.activate_heaters(heaters)
                             self.values['status'].set_data_index(index=0, data="Heat")
                     except:
-                        logger.exception("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
+                        logger.exception("[%s] - loop node uuid:%s", self.__class__.__name__, self.uuid)
                 else:
-                    logger.warning("[%s] - [%s] - Can't find external heaters or sensors.", self.__class__.__name__, self.uuid)
+                    logger.warning("[%s] - [%s] - Can't find heaters or sensors.", self.__class__.__name__, self.uuid)
             except:
                 logger.exception("[%s] - Exception in loop node uuid:%s", self.__class__.__name__, self.uuid)
             self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
