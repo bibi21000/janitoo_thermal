@@ -62,8 +62,8 @@ def make_simple_thermostat(**kwargs):
 def make_external_sensor(**kwargs):
     return ExternalSensorComponent(**kwargs)
 
-def make_external_relay(**kwargs):
-    return ExternalRelayComponent(**kwargs)
+def make_external_heater(**kwargs):
+    return ExternalHeaterComponent(**kwargs)
 
 class ThermalBus(JNTBus):
     """A minimal thermal bus
@@ -92,7 +92,7 @@ class ThermalBus(JNTBus):
             self.components[compo].loop(stopevent)
 
 class SimpleThermostatComponent(JNTComponent):
-    """ A somple thermostat component """
+    """ A somple thermostat component. Use an hysteresis to avoid resonance """
 
     def __init__(self, bus=None, addr=None, **kwargs):
         """
@@ -125,32 +125,57 @@ class SimpleThermostatComponent(JNTComponent):
         )
         self.last_run = datetime.datetime.now()
 
+    def get_sensors(self):
+        """Return a list of all available sensors
+        """
+        return self._bus.find_values('thermal.external_sensor', 'users_read')
+
+    def get_heaters(self):
+        """Return a list of all available heaters (relays)
+        """
+        return self._bus.find_values('thermal.external_heater', 'users_write')
+
+    def get_temperature(self, sensors):
+        """Return the temperature of the zone. Can be calculated from differents sensors.
+        """
+        return sensors[0].get_cache(index=0)
+
+    def activate_heaters(self, heaters):
+        """Activate all heaters in the zone
+        """
+        state = heaters[0].get_cache(index=0)
+        onstate = heaters[0].get_value_config(index=0)[3]
+        if state != onstate:
+            heaters[0].set_cache(index=0, data=onstate)
+            logger.debug("[%s] - [%s] --------------------------------- Update heater to onstate.", self.__class__.__name__, self.uuid)
+
+    def deactivate_heaters(self, heaters):
+        """Deactivate all heaters in the zone
+        """
+        state = heaters[0].get_cache(index=0)
+        offstate = heaters[0].get_value_config(index=0)[4]
+        if state != offstate:
+            heaters[0].set_cache(index=0, data=offstate)
+            logger.debug("[%s] - [%s] --------------------------------- Update heater to offstate.", self.__class__.__name__, self.uuid)
+
     def loop(self, stopevent):
         """Loop in the components"""
         if self.last_run < datetime.datetime.now():
-            sensors = self._bus.find_values('thermal.external_sensor', 'users_read')
-            relays = self._bus.find_values('thermal.external_relay', 'users_write')
+            sensors = self.get_sensors()
+            heaters = self.get_heaters()
             logger.debug("[%s] - [%s] - Found %s external sensors", self.__class__.__name__, self.uuid, len(sensors))
-            logger.debug("[%s] - [%s] - Found %s external relays", self.__class__.__name__, self.uuid, len(relays))
-            if len(sensors)>0 and len(relays)>0:
+            logger.debug("[%s] - [%s] - Found %s external heaters", self.__class__.__name__, self.uuid, len(heaters))
+            if len(sensors)>0 and len(heaters)>0:
                 try:
-                    temp = sensors[0].get_cache(index=0)
+                    temp = self.get_temperature(sensors)
                     if temp > self.values['setpoint'].get_data_index(index=0) :
-                        state = relays[0].get_cache(index=0)
-                        offstate = relays[0].get_value_config(index=0)[4]
-                        if state != offstate:
-                            relays[0].set_cache(index=0, data=offstate)
-                            logger.debug("[%s] - [%s] --------------------------------- Update relay to offstate.", self.__class__.__name__, self.uuid)
+                        self.deactivate_heaters(heaters)
                     if temp < self.values['setpoint'].get_data_index(index=0) - self.values['hysteresis'].get_data_index(index=0) :
-                        state = relays[0].get_cache(index=0)
-                        onstate = relays[0].get_value_config(index=0)[3]
-                        if state != onstate:
-                            relays[0].set_cache(index=0, data=onstate)
-                            logger.debug("[%s] - [%s] --------------------------------- Update relay to onstate.", self.__class__.__name__, self.uuid)
+                        self.activate_heaters(heaters)
                 except:
                     logger.exception("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
             else:
-                logger.warning("[%s] - [%s] - Can't find external relays or sensors.", self.__class__.__name__, self.uuid)
+                logger.warning("[%s] - [%s] - Can't find external heaters or sensors.", self.__class__.__name__, self.uuid)
             self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
 
 class ExternalSensorComponent(RemoteNodeComponent):
@@ -165,14 +190,14 @@ class ExternalSensorComponent(RemoteNodeComponent):
                 **kwargs)
         logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
 
-class ExternalRelayComponent(RemoteNodeComponent):
-    """ An external relay component """
+class ExternalHeaterComponent(RemoteNodeComponent):
+    """ An external heater component """
 
     def __init__(self, bus=None, addr=None, **kwargs):
         """
         """
-        oid = kwargs.pop('oid', 'thermal.external_relay')
-        name = kwargs.pop('name', "External relay")
+        oid = kwargs.pop('oid', 'thermal.external_heater')
+        name = kwargs.pop('name', "External heater")
         RemoteNodeComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
                 **kwargs)
         logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)

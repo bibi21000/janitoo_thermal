@@ -81,13 +81,13 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
             #~ print self.thread.nodeman.state
         #~ print self.thread.bus.nodeman.nodes
         self.assertNotEqual(None, self.thread.bus.nodeman.find_node('sensor0'))
-        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('relay0'))
+        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('heater0'))
         self.assertNotEqual(None, self.thread.bus.nodeman.find_node('simple0'))
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.external_sensor')))
-        self.assertEqual(1, len(self.thread.bus.find_components('thermal.external_relay')))
+        self.assertEqual(1, len(self.thread.bus.find_components('thermal.external_heater')))
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.simple_thermostat')))
         self.assertEqual(1, len(self.thread.bus.find_values('thermal.external_sensor','users_read')))
-        self.assertEqual(1, len(self.thread.bus.find_values('thermal.external_relay','users_write')))
+        self.assertEqual(1, len(self.thread.bus.find_values('thermal.external_heater','users_write')))
 
         self.assertEqual(1, self.thread.bus.nodeman.find_value('sensor0','users_read').get_length())
         value = self.thread.bus.nodeman.find_value('sensor0','users_read')
@@ -95,13 +95,13 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
         self.assertEqual(['dht_in_temp','0'], value.get_value_config())
         self.assertEqual(None, value.get_value_config(index=99))
 
-        self.assertEqual(1, self.thread.bus.nodeman.find_value('relay0','users_write').get_length())
-        value = self.thread.bus.nodeman.find_value('relay0','users_write')
+        self.assertEqual(1, self.thread.bus.nodeman.find_value('heater0','users_write').get_length())
+        value = self.thread.bus.nodeman.find_value('heater0','users_write')
         print value.get_value_config()
         self.assertEqual(['switch','0','0x0025','1','0'], value.get_value_config())
         self.assertEqual(None, value.get_value_config(index=99))
 
-    def test_102_long_run(self):
+    def test_102_thermostat(self):
         self.thread.start()
         timeout = 120
         i = 0
@@ -111,35 +111,35 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
         i = 0
         self.assertTrue(self.thread.nodeman.is_started)
         self.thread.bus.find_values('thermal.simple_thermostat','delay')[0].set_data_index(index=0,data=2)
-        onstate = self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_value_config(index=0)[3]
-        offstate = self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_value_config(index=0)[4]
+        onstate = self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_value_config(index=0)[3]
+        offstate = self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_value_config(index=0)[4]
         self.thread.bus.find_values('thermal.simple_thermostat','setpoint')[0].set_data_index(index=0,data=20)
         self.thread.bus.find_values('thermal.simple_thermostat','hysteresis')[0].set_data_index(index=0,data=0.5)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=15)
         time.sleep(6.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.5)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.8)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=20.1)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=22.1)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.8)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.5)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.4)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.4)
         time.sleep(3.0)
-        self.assertEqual(self.thread.bus.find_values('thermal.external_relay','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.4)

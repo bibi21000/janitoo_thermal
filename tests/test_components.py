@@ -62,8 +62,8 @@ class TestExternalSensorComponent(JNTTComponent, JNTTComponentCommon):
     """
     component_name = "thermal.external_sensor"
 
-class TestExternalRelayComponent(JNTTComponent, JNTTComponentCommon):
+class TestExternalHeaterComponent(JNTTComponent, JNTTComponentCommon):
     """Test the component
     """
-    component_name = "thermal.external_relay"
+    component_name = "thermal.external_heater"
 

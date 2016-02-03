@@ -63,7 +63,7 @@ janitoo_entry_points = {
     "janitoo.components": [
         "thermal.simple_thermostat = janitoo_thermal.thermal:make_simple_thermostat",
         "thermal.external_sensor = janitoo_thermal.thermal:make_external_sensor",
-        "thermal.external_relay = janitoo_thermal.thermal:make_external_relay",
+        "thermal.external_heater = janitoo_thermal.thermal:make_external_heater",
     ],
 }
 
