@@ -128,10 +128,29 @@ class SimpleThermostatComponent(JNTComponent):
     def loop(self, stopevent):
         """Loop in the components"""
         if self.last_run < datetime.datetime.now():
-            sensors = self._bus.find_values('remote.external_sensor', 'users_read')
+            sensors = self._bus.find_values('thermal.external_sensor', 'users_read')
+            relays = self._bus.find_values('thermal.external_relay', 'users_write')
             logger.debug("[%s] - [%s] - Found %s external sensors", self.__class__.__name__, self.uuid, len(sensors))
-            relays = self._bus.find_values('remote.external_relay', 'users_write')
             logger.debug("[%s] - [%s] - Found %s external relays", self.__class__.__name__, self.uuid, len(relays))
+            if len(sensors)>0 and len(relays)>0:
+                try:
+                    temp = sensors[0].get_cache(index=0)
+                    if temp > self.values['setpoint'].get_data_index(index=0) :
+                        state = relays[0].get_cache(index=0)
+                        offstate = relays[0].get_value_config(index=0)[4]
+                        if state != offstate:
+                            relays[0].set_cache(index=0, data=offstate)
+                            logger.debug("[%s] - [%s] --------------------------------- Update relay to offstate.", self.__class__.__name__, self.uuid)
+                    if temp < self.values['setpoint'].get_data_index(index=0) - self.values['hysteresis'].get_data_index(index=0) :
+                        state = relays[0].get_cache(index=0)
+                        onstate = relays[0].get_value_config(index=0)[3]
+                        if state != onstate:
+                            relays[0].set_cache(index=0, data=onstate)
+                            logger.debug("[%s] - [%s] --------------------------------- Update relay to onstate.", self.__class__.__name__, self.uuid)
+                except:
+                    logger.exception("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
+            else:
+                logger.warning("[%s] - [%s] - Can't find external relays or sensors.", self.__class__.__name__, self.uuid)
             self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
 
 class ExternalSensorComponent(RemoteNodeComponent):
