@@ -243,6 +243,8 @@ class SimpleThermostatComponent(JNTComponent):
         """Check that the status has benn updated
 
         """
+        if 'status' not in self.values:
+            return False
         return self.values['status'].get_data_index(index=0) is not None
 
 
