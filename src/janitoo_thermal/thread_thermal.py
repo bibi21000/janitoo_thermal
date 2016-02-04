@@ -5,7 +5,7 @@ Installation :
 
 .. code-block:: bash
 
-    sudo apt-get install python-pycamera
+    sudo apt-get install
 
 """
 
