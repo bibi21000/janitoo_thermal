@@ -111,6 +111,16 @@ class SimpleThermostatComponent(JNTComponent):
         )
         poll_value = self.values[uuid].create_poll_value(default=1800)
         self.values[poll_value.uuid] = poll_value
+        uuid="missing_ok"
+        self.values[uuid] = self.value_factory['config_integer'](options=self.options, uuid=uuid,
+            node_uuid=self.uuid,
+            help='The number of missing values we accept before failing',
+            label='Hist.',
+            default=kwargs.pop('missing_ok', 2),
+        )
+        self._missing = 0
+        poll_value = self.values[uuid].create_poll_value(default=1800)
+        self.values[poll_value.uuid] = poll_value
         uuid="setpoint"
         self.values[uuid] = self.value_factory['config_float'](options=self.options, uuid=uuid,
             node_uuid=self.uuid,
@@ -167,8 +177,9 @@ class SimpleThermostatComponent(JNTComponent):
         return self._bus.find_values('thermal.external_heater', 'users_write')
 
     def get_sensors_temperature(self, sensors):
-        """Return the temperature of the zone. Can be calculated from differents sensors.
+        """Return the temperature of the zone. Can be calculated from differents sensors. Must return None whan fail
         """
+        logger.debug("sensors[0].get_cache(index=0) : %s"%sensors[0].get_cache(index=0))
         return sensors[0].get_cache(index=0)
 
     def activate_heaters(self, heaters):
@@ -192,6 +203,7 @@ class SimpleThermostatComponent(JNTComponent):
     def loop(self, stopevent):
         """Loop in the components"""
         if self.last_run < datetime.datetime.now():
+            self._missing += 1
             sensors = self.get_sensors()
             logger.debug("[%s] - [%s] - Found %s sensors", self.__class__.__name__, self.uuid, len(sensors))
             if len(sensors) == 0:
@@ -204,19 +216,35 @@ class SimpleThermostatComponent(JNTComponent):
                 if len(sensors)>0 and len(heaters)>0:
                     try:
                         temp = self.get_sensors_temperature(sensors)
-                        if temp > self.values['setpoint'].get_data_index(index=0) :
-                            self.values['status'].set_data_index(index=0, data="Sleep")
-                            self.deactivate_heaters(heaters)
-                        if temp < self.values['setpoint'].get_data_index(index=0) - self.values['hysteresis'].get_data_index(index=0) :
-                            self.activate_heaters(heaters)
-                            self.values['status'].set_data_index(index=0, data="Heat")
+                        if temp is not None:
+                            logger.debug("[%s] - [%s] - temp : %s", self.__class__.__name__, self.uuid, temp)
+                            if temp > self.values['setpoint'].get_data_index(index=0) :
+                                self.values['status'].set_data_index(index=0, data="Sleep")
+                                self.deactivate_heaters(heaters)
+                            if temp < self.values['setpoint'].get_data_index(index=0) - self.values['hysteresis'].get_data_index(index=0) :
+                                self.activate_heaters(heaters)
+                                self.values['status'].set_data_index(index=0, data="Heat")
+                            self._missing = 0
                     except:
                         logger.exception("[%s] - loop node uuid:%s", self.__class__.__name__, self.uuid)
                 else:
                     logger.warning("[%s] - [%s] - Can't find heaters or sensors.", self.__class__.__name__, self.uuid)
             except:
                 logger.exception("[%s] - Exception in loop node uuid:%s", self.__class__.__name__, self.uuid)
+            logger.debug("[%s] - [%s] - Missing detected : %s, missing : %s, missing_ok : %s", \
+                        self.__class__.__name__, self.uuid, self._missing > self.values['missing_ok'].get_data_index(index=0),
+                        self._missing, self.values['missing_ok'].get_data_index(index=0))
+            if self._missing > self.values['missing_ok'].get_data_index(index=0):
+                logger.warning("[%s] - [%s] - Too many missing values. Switch to fail mode", self.__class__.__name__, self.uuid)
+                self.values['status'].set_data_index(index=0, data=None)
             self.last_run = datetime.datetime.now() + datetime.timedelta(seconds=self.values['delay'].data)
+
+    def check_heartbeat(self):
+        """Check that the status has benn updated
+
+        """
+        return self.values['status'].get_data_index(index=0) is not None
+
 
 class ExternalSensorComponent(RemoteNodeComponent):
     """ An external sensor component """

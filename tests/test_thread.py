@@ -103,7 +103,7 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
 
     def test_102_thermostat(self):
         self.thread.start()
-        timeout = 120
+        timeout = 60
         i = 0
         while i< timeout:
             time.sleep(1)
@@ -116,30 +116,61 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
         self.thread.bus.find_values('thermal.simple_thermostat','setpoint')[0].set_data_index(index=0,data=20)
         self.thread.bus.find_values('thermal.simple_thermostat','hysteresis')[0].set_data_index(index=0,data=0.5)
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=15)
-        time.sleep(10.0)
+        time.sleep(20.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Heat')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.5)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Heat')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.8)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Heat')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=20.1)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Sleep')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=22.1)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Sleep')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.8)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Sleep')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.5)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), offstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Sleep')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.4)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Heat')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.4)
         time.sleep(3.0)
         self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Heat')
         self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=19.4)
+
+    def test_103_thermostat_fail(self):
+        self.thread.start()
+        timeout = 60
+        i = 0
+        while i< timeout:
+            time.sleep(1)
+            i += 1
+        i = 0
+        self.assertTrue(self.thread.nodeman.is_started)
+        self.thread.bus.find_values('thermal.simple_thermostat','delay')[0].set_data_index(index=0,data=3)
+        onstate = self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_value_config(index=0)[3]
+        offstate = self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_value_config(index=0)[4]
+        self.thread.bus.find_values('thermal.simple_thermostat','setpoint')[0].set_data_index(index=0,data=20)
+        self.thread.bus.find_values('thermal.simple_thermostat','hysteresis')[0].set_data_index(index=0,data=0.5)
+        self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=15)
+        time.sleep(20.0)
+        self.assertEqual(self.thread.bus.find_values('thermal.external_heater','users_write')[0].get_cache(index=0), onstate)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), 'Heat')
+        self.thread.bus.find_values('thermal.external_sensor','users_read')[0].set_cache(index=0,data=None)
+        time.sleep(12.0)
+        self.assertEqual(self.thread.bus.find_values('thermal.simple_thermostat','status')[0].get_data_index(index=0), None)
