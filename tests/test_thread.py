@@ -80,23 +80,23 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
             i += 1
             #~ print self.thread.nodeman.state
         #~ print self.thread.bus.nodeman.nodes
-        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('thermal__sensor0'))
-        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('thermal__heater0'))
-        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('thermal__simple0'))
+        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('sensor0'))
+        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('heater0'))
+        self.assertNotEqual(None, self.thread.bus.nodeman.find_node('simple0'))
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.external_sensor')))
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.external_heater')))
         self.assertEqual(1, len(self.thread.bus.find_components('thermal.simple_thermostat')))
         self.assertEqual(1, len(self.thread.bus.find_values('thermal.external_sensor','users_read')))
         self.assertEqual(1, len(self.thread.bus.find_values('thermal.external_heater','users_write')))
 
-        self.assertEqual(1, self.thread.bus.nodeman.find_value('thermal__sensor0','users_read').get_length())
-        value = self.thread.bus.nodeman.find_value('thermal__sensor0','users_read')
+        self.assertEqual(1, self.thread.bus.nodeman.find_value('sensor0','users_read').get_length())
+        value = self.thread.bus.nodeman.find_value('sensor0','users_read')
         print value.get_value_config()
         self.assertEqual(['dht_in_temp','0'], value.get_value_config())
         self.assertEqual(None, value.get_value_config(index=99))
 
-        self.assertEqual(1, self.thread.bus.nodeman.find_value('thermal__heater0','users_write').get_length())
-        value = self.thread.bus.nodeman.find_value('thermal__heater0','users_write')
+        self.assertEqual(1, self.thread.bus.nodeman.find_value('heater0','users_write').get_length())
+        value = self.thread.bus.nodeman.find_value('heater0','users_write')
         print value.get_value_config()
         self.assertEqual(['switch','0','0x0025','1','0'], value.get_value_config())
         self.assertEqual(None, value.get_value_config(index=99))
