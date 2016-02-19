@@ -169,12 +169,12 @@ class SimpleThermostatComponent(JNTComponent):
     def get_sensors(self):
         """Return a list of all available sensors
         """
-        return self._bus.find_values('thermal.external_sensor', 'users_read')
+        return self._bus.find_values('thermal.external_sensor', 'user_read')
 
     def get_heaters(self):
         """Return a list of all available heaters (relays)
         """
-        return self._bus.find_values('thermal.external_heater', 'users_write')
+        return self._bus.find_values('thermal.external_heater', 'user_write')
 
     def get_sensors_temperature(self, sensors):
         """Return the temperature of the zone. Can be calculated from differents sensors. Must return None whan fail
