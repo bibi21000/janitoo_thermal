@@ -39,7 +39,7 @@ from janitoo.node import JNTNode
 from janitoo.value import JNTValue
 from janitoo.component import JNTComponent
 from janitoo.bus import JNTBus
-from janitoo.threads.remote import RemoteNodeComponent
+from janitoo_factory.threads.remote import RemoteNodeComponent
 
 
 ##############################################################
