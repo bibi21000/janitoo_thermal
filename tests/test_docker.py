@@ -41,3 +41,12 @@ from janitoo.runner import Runner, jnt_parse_args
 from janitoo.server import JNTServer
 from janitoo.utils import HADD_SEP, HADD
 
+class TestThermalSerser(JNTTServer, JNTTServerCommon):
+    """Test the server
+    """
+    path = '/tmp/janitoo_test'
+    broker_user = 'toto'
+    broker_password = 'toto'
+    server_class = JNTServer
+    server_conf = "tests/data/janitoo_thermal.conf"
+    hadds = [HADD%(232,0), HADD%(232,1), HADD%(232,2), HADD%(232,3)]
