@@ -41,7 +41,7 @@ from janitoo.runner import Runner, jnt_parse_args
 from janitoo.server import JNTServer
 from janitoo.utils import HADD_SEP, HADD
 
-class TestThermalSerser(JNTTServer, JNTTServerCommon):
+class TestThermalSerser(JNTTDockerServerCommon, JNTTDockerServer):
     """Test the server
     """
     path = '/tmp/janitoo_test'
