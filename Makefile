@@ -185,7 +185,7 @@ tar:
 	@echo
 	@echo "Archive for ${MODULENAME} version ${janitoo_version} created"
 
-commit: develop
+commit:
 	-git add rst/
 	-cp rst/README.rst .
 	-git add README.rst
