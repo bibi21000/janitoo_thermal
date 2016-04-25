@@ -77,8 +77,6 @@ class ThermalBus(JNTBus):
     def start(self, mqttc, trigger_thread_reload_cb=None):
         """Start the bus
         """
-        #~ for bus in self.buses:
-            #~ self.buses[bus].start(mqttc, trigger_thread_reload_cb=None)
         JNTBus.start(self, mqttc, trigger_thread_reload_cb)
 
     def stop(self):
