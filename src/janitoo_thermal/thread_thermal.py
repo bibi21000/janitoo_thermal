@@ -54,8 +54,10 @@ COMMAND_CONTROLLER = 0x1050
 assert(COMMAND_DESC[COMMAND_CONTROLLER] == 'COMMAND_CONTROLLER')
 ##############################################################
 
-def make_thread(options):
-    if get_option_autostart(options, 'thermal') == True:
+OID = 'thermal'
+
+def make_thread(options, force=False):
+    if get_option_autostart(options, OID) == True or force:
         return ThermalThread(options)
     else:
         return None
@@ -68,6 +70,6 @@ class ThermalThread(JNTBusThread):
         """Build the bus
         """
         from janitoo_thermal.thermal import ThermalBus
-        self.section = 'thermal'
+        self.section = OID
         self.bus = ThermalBus(options=self.options, oid=self.section, product_name="Thermal bus controller")
 
