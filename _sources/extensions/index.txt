@@ -1,20 +1,7 @@
-janitoo_thermal package
-=======================
+Janitoo's extensions
+====================
 
-Show janitoo's extensions.
+This package contains the following extensions for Janitoo.
 
-Core extensions
----------------
-
-Threads
-^^^^^^^
-
- - thermal (janitoo_thermal.thread_thermal:make_thread)
-
-Components
-^^^^^^^^^^
-
- - thermal.simple_thermostat (janitoo_thermal.thermal:make_simple_thermostat)
- - thermal.external_sensor (janitoo_thermal.thermal:make_external_sensor)
- - thermal.external_heater (janitoo_thermal.thermal:make_external_heater)
+.. jnt-extensions::
 
