@@ -223,11 +223,11 @@ class SimpleThermostatComponent(JNTComponent):
                                 self.activate_heaters(heaters)
                                 self.values['status'].set_data_index(index=0, data="Heat")
                             self._missing = 0
-                    except:
+                    except Exception:
                         logger.exception("[%s] - loop node uuid:%s", self.__class__.__name__, self.uuid)
                 else:
                     logger.warning("[%s] - [%s] - Can't find heaters or sensors.", self.__class__.__name__, self.uuid)
-            except:
+            except Exception:
                 logger.exception("[%s] - Exception in loop node uuid:%s", self.__class__.__name__, self.uuid)
             logger.debug("[%s] - [%s] - Missing detected : %s, missing : %s, missing_ok : %s", \
                         self.__class__.__name__, self.uuid, self._missing > self.values['missing_ok'].get_data_index(index=0),
