@@ -56,6 +56,8 @@ assert(COMMAND_DESC[COMMAND_WEB_RESOURCE] == 'COMMAND_WEB_RESOURCE')
 assert(COMMAND_DESC[COMMAND_DOC_RESOURCE] == 'COMMAND_DOC_RESOURCE')
 ##############################################################
 
+from janitoo_thermal import OID
+
 def make_simple_thermostat(**kwargs):
     return SimpleThermostatComponent(**kwargs)
 
@@ -95,7 +97,7 @@ class SimpleThermostatComponent(JNTComponent):
     def __init__(self, bus=None, addr=None, **kwargs):
         """
         """
-        oid = kwargs.pop('oid', 'thermal.simple_thermostat')
+        oid = kwargs.pop('oid', '%s.simple_thermostat'%OID)
         name = kwargs.pop('name', "Simple thermostat")
         JNTComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
                 **kwargs)
@@ -252,7 +254,7 @@ class ExternalSensorComponent(RemoteNodeComponent):
     def __init__(self, bus=None, addr=None, **kwargs):
         """
         """
-        oid = kwargs.pop('oid', 'thermal.external_sensor')
+        oid = kwargs.pop('oid', '%s.external_sensor'%OID)
         name = kwargs.pop('name', "External sensor")
         RemoteNodeComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
                 **kwargs)
@@ -264,7 +266,7 @@ class ExternalHeaterComponent(RemoteNodeComponent):
     def __init__(self, bus=None, addr=None, **kwargs):
         """
         """
-        oid = kwargs.pop('oid', 'thermal.external_heater')
+        oid = kwargs.pop('oid', '%s.external_heater'%OID)
         name = kwargs.pop('name', "External heater")
         RemoteNodeComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
                 **kwargs)
