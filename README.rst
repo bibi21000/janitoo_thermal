@@ -14,7 +14,7 @@
    :target: https://landscape.io/github/bibi21000/janitoo_thermal/master
    :alt: Code Health
 
-.. image:: https://img.shields.io/badge/Documenation-ok-brightgreen.svg?style=flat
+.. image:: https://img.shields.io/badge/Documentation-ok-brightgreen.svg?style=flat
    :target: https://bibi21000.github.io/janitoo_thermal/index.html
    :alt: Documentation
 
