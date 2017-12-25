@@ -84,13 +84,13 @@ class TestThermalThread(JNTTThreadRun, JNTTThreadRunCommon):
 
         self.assertEqual(1, self.thread.bus.nodeman.find_value('sensor0','user_read').get_length())
         value = self.thread.bus.nodeman.find_value('sensor0','user_read')
-        print value.get_value_config()
+        print(value.get_value_config())
         self.assertEqual(['dht_in_temp','0'], value.get_value_config())
         self.assertEqual(None, value.get_value_config(index=99))
 
         self.assertEqual(1, self.thread.bus.nodeman.find_value('heater0','user_write').get_length())
         value = self.thread.bus.nodeman.find_value('heater0','user_write')
-        print value.get_value_config()
+        print(value.get_value_config())
         self.assertEqual(['switch','0','0x0025','1','0'], value.get_value_config())
         self.assertEqual(None, value.get_value_config(index=99))
 
