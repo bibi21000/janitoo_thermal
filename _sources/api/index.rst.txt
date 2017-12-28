@@ -1,0 +1,30 @@
+janitoo_thermal package
+=======================
+
+Submodules
+----------
+
+janitoo_thermal.thermal module
+------------------------------
+
+.. automodule:: janitoo_thermal.thermal
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+janitoo_thermal.thread_thermal module
+-------------------------------------
+
+.. automodule:: janitoo_thermal.thread_thermal
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: janitoo_thermal
+    :members:
+    :undoc-members:
+    :show-inheritance:
